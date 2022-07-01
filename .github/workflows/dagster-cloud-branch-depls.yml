@@ -2,6 +2,7 @@ on: [pull_request]
 
 env:
   DAGSTER_CLOUD_URL: ${{ secrets.DAGSTER_CLOUD_URL }}
+  REGISTRY_URI: ${{ secrets.REGISTRY_URI }}
 
 jobs:
   dagster_cloud_build_push:
@@ -14,7 +15,7 @@ jobs:
         location:
           - name: example_location
             build_folder: example_location
-            registry: ${{ secrets.REGISTRY_URI }}
+            registry_env: REGISTRY_URI
             location_file: locations.yaml
     steps:
       - name: Checkout
