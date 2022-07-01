@@ -50,7 +50,7 @@ jobs:
         with:
           context: ${{ matrix.location.build_folder }}
           push: true
-          tags: "${{ matrix.location.registry }}:${{ github.sha }}"
+          tags: "${{ secrets.REGISTRY_URI }}:${{ github.sha }}"
           labels: |
             branch=${{ github.head_ref }}
           cache-from: type=gha
