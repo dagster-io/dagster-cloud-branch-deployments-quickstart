@@ -1,0 +1,85 @@
+on: [pull_request]
+
+env:
+  DAGSTER_CLOUD_URL: ${{ secrets.DAGSTER_CLOUD_URL }}
+
+jobs:
+  dagster_cloud_build_push:
+    runs-on: ubuntu-latest
+    name: Dagster Cloud
+    strategy:
+      fail-fast: false
+      matrix:
+        # Here, define the list code locations that should be built and deployed
+        location:
+          - name: example_location
+            build_folder: example_location
+            registry: ${{ secrets.REGISTRY_URI }}
+            location_file: locations.yaml
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Notify build start
+        uses: ./notify
+        with:
+          action: "pending"
+          pr: "${{ github.event.number }}"
+          location: ${{ toJson(matrix.location) }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: ${{ matrix.location.build_folder }}
+          push: true
+          tags: "${{ matrix.location.registry }}:${{ github.sha }}"
+          labels: |
+            branch=${{ github.head_ref }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to Dagster Cloud
+        uses: ./deploy
+        id: deploy
+        with:
+          pr: "${{ github.event.number }}"
+          location: ${{ toJson(matrix.location) }}
+          image_tag: ${{ github.sha }}
+        env:
+          DAGSTER_CLOUD_API_TOKEN: ${{ secrets.DAGSTER_CLOUD_API_TOKEN }}
+
+      - name: Notify build success
+        uses: ./notify
+        with:
+          action: "complete"
+          pr: "${{ github.event.number }}"
+          location: ${{ toJson(matrix.location) }}
+          deployment: ${{ steps.deploy.outputs.deployment }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Notify build failure
+        if: ${{ failure() }}
+        uses: ./notify
+        with:
+          action: "failed"
+          pr: "${{ github.event.number }}"
+          location: ${{ toJson(matrix.location) }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

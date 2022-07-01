@@ -1,0 +1,22 @@
+# action.yml
+name: 'Hello World'
+description: 'Greet someone and record the time'
+inputs:
+  action:
+    required: false
+    default: "complete"
+  pr:
+    required: false
+  organization_id:
+    required: false
+  location:
+    required: true
+  deployment:
+    required: false
+runs:
+  using: 'docker'
+  image: 'public.ecr.aws/a6x1l7i5/gh-action-test:0.2'
+  # image: '../Dockerfile'
+  entrypoint: '/notify.sh'
+  args:
+    - ${{ inputs.pr }}
