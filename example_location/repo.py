@@ -18,9 +18,15 @@ def nabisco_cereals(cereals):
     return [row for row in cereals if row["mfr"] == "N"]
 
 
+@asset
+def quaker_cereals(cereals):
+    """Cereals manufactured by Quaker"""
+    return [row for row in cereals if row["mfr"] == "Q"]
+
+
 all_cereals_job = define_asset_job(name="all_cereals_job")
 
 
 @repository
 def repo():
-    return [cereals, nabisco_cereals, all_cereals_job]
+    return [cereals, nabisco_cereals, quaker_cereals, all_cereals_job]
