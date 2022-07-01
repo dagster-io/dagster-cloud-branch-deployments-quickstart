@@ -34,7 +34,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Notify build start
-        uses: ./notify
+        uses: dagster-io/cloud-branch-deployments-action/notify@main
         with:
           action: "pending"
           pr: "${{ github.event.number }}"
@@ -57,7 +57,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Deploy to Dagster Cloud
-        uses: ./deploy
+        uses: dagster-io/cloud-branch-deployments-action/deploy@main
         id: deploy
         with:
           pr: "${{ github.event.number }}"
@@ -67,7 +67,7 @@ jobs:
           DAGSTER_CLOUD_API_TOKEN: ${{ secrets.DAGSTER_CLOUD_API_TOKEN }}
 
       - name: Notify build success
-        uses: ./notify
+        uses: dagster-io/cloud-branch-deployments-action/notify@main
         with:
           action: "complete"
           pr: "${{ github.event.number }}"
@@ -77,7 +77,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Notify build failure
         if: ${{ failure() }}
-        uses: ./notify
+        uses: dagster-io/cloud-branch-deployments-action/notify@main
         with:
           action: "failed"
           pr: "${{ github.event.number }}"
