@@ -1,5 +1,7 @@
-on: [pull_request]
-
+name: Dagster Branch Deployments
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
 env:
   DAGSTER_CLOUD_URL: ${{ secrets.DAGSTER_CLOUD_URL }}
   REGISTRY_URI: ${{ secrets.REGISTRY_URI }}
@@ -7,16 +9,16 @@ env:
 jobs:
   dagster_cloud_build_push:
     runs-on: ubuntu-latest
-    name: Dagster Cloud
+    name: Dagster Branch Deployments
     strategy:
       fail-fast: false
       matrix:
-        # Here, define the list code locations that should be built and deployed
+        # Here, define the code locations that should be built and deployed
         location:
           - name: example_location
             build_folder: example_location
             registry_env: REGISTRY_URI
-            location_file: locations.yaml
+            location_file: cloud_workspace.yaml
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -61,6 +63,7 @@ jobs:
         id: deploy
         with:
           pr: "${{ github.event.number }}"
+          pr_status: "${{ github.event.pull_request.merged && 'merged' || github.event.pull_request.state }}"
           location: ${{ toJson(matrix.location) }}
           image_tag: ${{ github.sha }}
         env:
