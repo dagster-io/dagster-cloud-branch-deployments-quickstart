@@ -65,6 +65,7 @@ jobs:
       - name: Notify build start
         uses: dagster-io/cloud-branch-deployments-action/notify@main
         with:
+          organization_id: ${{ secrets.ORGANIZATION_ID }}
           action: "pending"
           pr: "${{ github.event.number }}"
           location: ${{ toJson(matrix.location) }}
@@ -102,6 +103,7 @@ jobs:
       - name: Notify build success
         uses: dagster-io/cloud-branch-deployments-action/notify@main
         with:
+          organization_id: ${{ secrets.ORGANIZATION_ID }}
           action: "complete"
           pr: "${{ github.event.number }}"
           location: ${{ toJson(matrix.location) }}
@@ -112,6 +114,7 @@ jobs:
         if: ${{ failure() }}
         uses: dagster-io/cloud-branch-deployments-action/notify@main
         with:
+          organization_id: ${{ secrets.ORGANIZATION_ID }}
           action: "failed"
           pr: "${{ github.event.number }}"
           location: ${{ toJson(matrix.location) }}
