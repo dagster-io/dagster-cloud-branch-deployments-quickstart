@@ -63,7 +63,7 @@ jobs:
 
       # Optional step, leaves PR comment about build status
       - name: Notify build start
-        uses: dagster-io/cloud-branch-deployments-action/notify@main
+        uses: dagster-io/cloud-branch-deployments-action/notify@v0.1.0
         with:
           organization_id: ${{ secrets.ORGANIZATION_ID }}
           action: "pending"
@@ -88,7 +88,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Deploy to Dagster Cloud
-        uses: dagster-io/cloud-branch-deployments-action/deploy@main
+        uses: dagster-io/cloud-branch-deployments-action/deploy@v0.1.0
         id: deploy
         with:
           organization_id: ${{ secrets.ORGANIZATION_ID }}
@@ -101,7 +101,7 @@ jobs:
 
       # Optional steps, leaves PR comment about build status
       - name: Notify build success
-        uses: dagster-io/cloud-branch-deployments-action/notify@main
+        uses: dagster-io/cloud-branch-deployments-action/notify@v0.1.0
         with:
           organization_id: ${{ secrets.ORGANIZATION_ID }}
           action: "complete"
@@ -112,7 +112,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Notify build failure
         if: ${{ failure() }}
-        uses: dagster-io/cloud-branch-deployments-action/notify@main
+        uses: dagster-io/cloud-branch-deployments-action/notify@v0.1.0
         with:
           organization_id: ${{ secrets.ORGANIZATION_ID }}
           action: "failed"

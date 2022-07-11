@@ -77,7 +77,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Deploy to Dagster Cloud
-        uses: dagster-io/cloud-branch-deployments-action/deploy@main
+        uses: dagster-io/cloud-branch-deployments-action/deploy@v0.1.0
         id: deploy
         with:
           organization_id: ${{ secrets.ORGANIZATION_ID }}
