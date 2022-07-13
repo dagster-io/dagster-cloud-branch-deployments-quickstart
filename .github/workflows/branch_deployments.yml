@@ -19,6 +19,8 @@ jobs:
             build_folder: example_location
             registry_env: REGISTRY_URL
             location_file: cloud_workspace.yaml
+    permissions:
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
