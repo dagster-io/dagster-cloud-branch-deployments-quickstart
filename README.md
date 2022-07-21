@@ -8,6 +8,11 @@ Click the `Use this Template` button and provide details for your new repo.
 
 <img width="953" alt="Screen Shot 2022-07-06 at 7 24 02 AM" src="https://user-images.githubusercontent.com/10215173/177577141-b6a91585-a276-49d3-b66b-e47bd26665a0.png">
 
+## Add Registry to `cloud_workspace.yaml`
+
+The [`cloud_workspace.yaml`](./cloud_workspace.yaml) file defines the configuration for building and deploying your code locations. Here, you will need to specify the Docker registry to push your code location to in the `registry` key.
+
+For more information on the possible configuration options, see [the Dagster Cloud docs](https://docs.dagster.cloud/guides/adding-code).
 
 ## Modify GitHub Workflow
 
