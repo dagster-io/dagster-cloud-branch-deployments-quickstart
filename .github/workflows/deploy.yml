@@ -5,21 +5,34 @@ on:
       - 'main'
 env:
   DAGSTER_CLOUD_URL: ${{ secrets.DAGSTER_CLOUD_URL }}
-  REGISTRY_URL: ${{ secrets.REGISTRY_URL }}
 
 jobs:
+  # Reads the list of locations to build from the cloud workspace file
+  load_build_info:
+    runs-on: ubuntu-latest
+    outputs:
+      build_info: ${{ steps.load-build-info.outputs.build_info }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Load build info
+        id: load-build-info
+        uses: dagster-io/cloud-branch-deployments-action/load_build_info@v0.2.1
+        with:
+          dagster_cloud_file: cloud_workspace.yaml
+
+  # Build, push, deploy each location
   dagster_cloud_build_push:
     runs-on: ubuntu-latest
-    name: Dagster Prod Deploy
+    needs: load_build_info
+    name: Dagster Branch Deployments
     strategy:
       fail-fast: false
+      # Iterate over every location discovered in the cloud workspace file
       matrix:
-        # Here, define the code locations that should be built and deployed
-        location:
-          - name: example_location
-            build_folder: example_location
-            registry_env: REGISTRY_URL
-            location_file: cloud_workspace.yaml
+        location: ${{ fromJSON(needs.load_build_info.outputs.build_info) }}
+    permissions:
+      pull-requests: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -68,16 +81,16 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: ${{ matrix.location.build_folder }}
+          context: ${{ matrix.location.directory }}
           push: true
-          tags: "${{ secrets.REGISTRY_URL }}:${{ github.sha }}"
+          tags: "${{ matrix.location.registry }}:${{ github.sha }}"
           labels: |
             branch=${{ github.head_ref }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Deploy to Dagster Cloud
-        uses: dagster-io/cloud-branch-deployments-action/deploy@v0.1.0
+        uses: dagster-io/cloud-branch-deployments-action/deploy@v0.2.1
         id: deploy
         with:
           organization_id: ${{ secrets.ORGANIZATION_ID }}
